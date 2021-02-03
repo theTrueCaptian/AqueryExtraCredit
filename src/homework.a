@@ -1,0 +1,31 @@
+<q>
+/ This script generates a csv file in the format required by the question
+/ then imports that csv and does a simple query.
+/ Your job is to improve on that query.
+/ For this to work, you have to import q and put it in the src directory.
+
+
+numdays: 100;
+numstocks: 4;
+dayvalues: 1 + til numdays;
+stockvalues: 1000 + til numstocks;
+mycross: dayvalues cross stockvalues;
+ids: mycross[;1]
+days: mycross[;0]
+prices: (floor numdays*numstocks) ? 200
+myindexes: (neg count prices) ? count prices;
+ids@: myindexes;
+days@: myindexes;
+prices@: myindexes;
+t:([]ID:ids;date:days;endofdayprice:prices)
+`:ticks.csv 0:csv 0:t
+delete t from `.
+</q>
+
+CREATE TABLE ticks(ID INT, date INT, endofdayprice INT)
+
+LOAD DATA INFILE "ticks.csv" INTO TABLE ticks FIELDS TERMINATED BY ","
+
+
+SHOW select ID, max(avgs(3,endofdayprice)) as maxavgprice from ticks ASSUMING ASC date GROUP BY ID
+
